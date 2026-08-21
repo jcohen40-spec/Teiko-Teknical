@@ -42,6 +42,8 @@ from analysis.baseline_summary import (
     subjects_by_sex,
 )
 
+from analysis.melanoma_male_responder_bcell import average_b_cell_count
+
 DB_PATH = REPO_ROOT / "cell_counts.db"
 
 st.set_page_config(page_title="Loblaw Bio | Immune Cell Dashboard", layout="wide")
@@ -75,11 +77,12 @@ def main():
         )
         st.stop()
 
-    tab1, tab2, tab3 = st.tabs(
+    tab1, tab2, tab3, tab4 = st.tabs(
         [
             "Part 2 — Cell Frequencies",
             "Part 3 — Responder vs. Non-Responder",
             "Part 4 — Baseline Cohort",
+            "Part 5 — Additional Question",
         ]
     )
 
@@ -235,6 +238,29 @@ def main():
             st.dataframe(by_sex, use_container_width=True, hide_index=True)
             st.bar_chart(by_sex.set_index("sex")["n_subjects"])
 
+    # ---------------------------------------------------------------
+    # Part 5: melanoma male responder B-cell question
+    # ---------------------------------------------------------------
+    with tab4:
+        st.header("Additional Question")
+        st.write(
+            "Considering melanoma males of all sample and treatment types, "
+            "what is the average number of B cells for responders at time=0?"
+        )
+
+        avg_b_cells = average_b_cell_count(DB_PATH)
+
+        st.metric(
+            "Average B cell count",
+            f"{avg_b_cells:.2f}",
+        )
+
+        st.caption(
+            "Filters: melanoma | male | responder | "
+            "time_from_treatment_start = 0 | all sample types | all treatments"
+        )
 
 if __name__ == "__main__":
     main()
+
+
