@@ -1,4 +1,4 @@
-# Teiko Teknical
+# Jonathan Cohen - Teiko Teknical
 
 Analysis pipeline and interactive dashboard for exploring how immune cell
 populations relate to treatment response in Bob Loblaw's clinical trial
