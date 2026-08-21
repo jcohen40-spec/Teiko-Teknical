@@ -1,4 +1,4 @@
-# Loblaw Bio — Immune Cell Population Analysis
+# Teiko Teknical
 
 Analysis pipeline and interactive dashboard for exploring how immune cell
 populations relate to treatment response in Bob Loblaw's clinical trial
@@ -53,31 +53,22 @@ projects(project_id PK)
 
 **Design rationale:**
 
-- **One row per real-world entity, not per CSV row.** The source CSV repeats
-  each subject's demographic/clinical fields (`condition`, `age`, `sex`,
-  `treatment`, `response`) on every sample row. Those fields don't change
-  per sample — they describe the *subject* — so they're stored once per
-  subject rather than duplicated. This removes redundancy and prevents the
-  data from ever going inconsistent (e.g. one sample row saying `age=57`
-  and another for the same subject saying `age=58` by data-entry error).
-- **`cell_counts` is one-to-one with `samples`**, keyed on `sample_id`
-  directly (used as both primary key and foreign key), because every
-  sample has exactly one set of cell counts. Cell population counts are
-  stored **wide** (one column per population — `b_cell`, `cd8_t_cell`,
-  etc.) rather than as separate long-format rows, mirroring the shape of
-  the source data directly and keeping the common case (retrieve all 5
-  counts for a sample) a single-row lookup.
-- **Foreign keys enforce referential integrity**: a sample can't
-  reference a subject that doesn't exist, and cell counts can't reference
-  a sample that doesn't exist. This is checked automatically by SQLite
-  (`PRAGMA foreign_keys = ON`) rather than trusted to application code.
-- **Indexes** on the foreign key columns (`subjects.project_id`,
-  `samples.subject_id`) keep the joins used throughout `analysis/` fast
-  even as the dataset grows.
+-I grouped in the way I found most intuitive. Project ID is the umbrella variable beneath which all other variables
+would fall. Based on my rationale, I found that project ID should operate as a primary key. Then, the subjects variable
+would be nested within with a foreign key mapping back to project ID and subject ID as a primary key. I also grouped
+variables that fell beneath subject here, which were condition, age, sex, treatment, and response. Next, I nested sample
+beneath subject, as each subject produced several samples, but the specifics of each sample are nested within subject. Thus, sample ID
+operates as the primary key, and subject ID is the foreign key, structurally. I also placed the sample type and time from treatment
+variables here, as they were sample-specific. Lastly, I nested cell counts within sample, using sample ID as a foreign key. In terms 
+of my preferences, I thought it best not to create a primary key for cell counts, as it didn't seem like a useful variable in a structural sense.
+Of course, for later parts of this analysis, it was helpful to pivot the cell counts to be in a long format as opposed to a wide one because
+it was easier to calculate proportions accordingly. However, in terms of the SQLite database, it felt more natural to have separate variables
+for each cell type, so one could easily, by sample, have all cell counts present as variables attached. This was my general rationale, 
+and it mostly was produced based on how I understood each variable fell beneath, above, or amongst others in terms of hierarchy.
 
 ### How this would scale
 
-At the current size (3 projects, 3,500 subjects, 10,500 samples) a single
+At the current size (3 projects, 3,500 subjects, 10,500 samples), a single
 SQLite file with in-Python joins is fast and simple. If this grew to
 **hundreds of projects, thousands of samples, and a wider variety of
 analyses**, a few things would change:
@@ -91,35 +82,26 @@ analyses**, a few things would change:
   normalized relational form.
 - **Cell population columns → a long-format table.** The wide
   `cell_counts` schema (one column per population) works well for a
-  fixed, known set of 5 populations. If Loblaw Bio started measuring
+  fixed, known set of 5 populations. If we started measuring
   new populations over time, or different panels per project, a wide
   schema would require schema migrations (`ALTER TABLE ADD COLUMN`)
   every time a new population is introduced. A long-format
-  `cell_counts(sample_id FK, population, count)` table (which I used in
-  an earlier draft of this schema) avoids that entirely — new
+  `cell_counts(sample_id FK, population, count)` table avoids that entirely — new
   populations are just new rows, and it also makes it trivial to write
   population-agnostic aggregate queries (`GROUP BY population`) that
-  don't need to be rewritten as the panel grows.
-- **Partitioning / indexing strategy.** With thousands of samples per
-  project, queries that filter heavily by `project_id`, `condition`, or
-  `time_from_treatment_start` (as Part 3 and Part 4 already do) would
-  benefit from composite indexes on those common filter combinations,
-  and potentially partitioning large tables by project or by trial
-  phase.
+  don't need to be rewritten as the panel grows. Moving to a long format
+  might be less structurally intuitive, but it would be more analytically efficient
+  with more cell types or a larger dataset. 
+- **Partitioning/indexing strategy.** If we find that we are frequently filtering
+  by the same grouping methods, we might consider adding unique indexes that reflect
+  rows that are often grouped.
 - **Separating raw data from derived/analytic tables.** Right now,
   Parts 2-4 recompute their summaries from `cell_counts` on every run.
-  At scale, with expensive or frequently-reused analyses, I'd
-  materialize commonly-needed aggregates (e.g. per-sample relative
-  frequencies) into their own table or a scheduled batch job, so the
-  dashboard doesn't recompute the same joins/aggregations from scratch
-  on every page load.
-- **A metadata/analysis-registry table.** With "various types of
-  analytics," it becomes worth tracking *what* analyses have been run,
-  on what data version, with what parameters — essentially light
-  experiment tracking — so results are reproducible and auditable as
-  the number of analyses grows beyond what any one person can hold in
-  their head.
-
+  At scale, saving these values to avoid duplicate recalculation would be
+  beneficial and save on computational energy and time.
+- **A metadata/analysis-registry table.** It might be beneficial, at larger scale,
+  to develop a storage method to understand how the data has been grouped, queried, analyzed, etc
+  such that it is easier to go back and review previous processes that were run.
 ## Code structure
 
 - **`load_data.py`** (Part 1) is deliberately dependency-free (standard
