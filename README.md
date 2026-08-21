@@ -61,7 +61,7 @@ projects(project_id PK)
 
 **Design rationale:**
 
--I grouped in the way I found most intuitive. Project ID is the umbrella variable beneath which all other variables
+I grouped in the way I found most intuitive. Project ID is the umbrella variable beneath which all other variables
 would fall. Based on my rationale, I found that project ID should operate as a primary key. Then, the subjects variable
 would be nested within with a foreign key mapping back to project ID and subject ID as a primary key. I also grouped
 variables that fell beneath subject here, which were condition, age, sex, treatment, and response. Next, I nested sample
