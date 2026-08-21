@@ -1,0 +1,21 @@
+# Environments
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/
+
+# NOTE: cell_counts.db and analysis/output/ are intentionally NOT
+# ignored -- the assignment spec asks for generated input/output files
+# to be included in the submission. `make pipeline` regenerates both
+# deterministically from cell-count.csv if they're ever deleted.
