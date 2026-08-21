@@ -19,7 +19,10 @@ tab and click the forwarded `8501` link.
 
 Running this line in the Teiko Teknical workspace should also start the dashboard if it isn't up and running.
 
+```bash
 python -m streamlit run dashboard/app.py
+```
+
 
 
 **Dashboard link:** https://psychic-broccoli-jjxjv6r9464vc5gv4-8501.app.github.dev/
