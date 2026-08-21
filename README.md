@@ -108,12 +108,11 @@ analyses**, a few things would change:
   library only: `csv`, `sqlite3`, `pathlib`) and self-contained, since
   it's the very first thing that has to run — no environment setup
   required before the database can be built.
-- **`analysis/`** holds one script per analytical question (Parts 2-4,
-  plus the ad-hoc question script), each following the same pattern:
+- **`analysis/`** holds one script per analytical question (Parts 2-4, each following the same pattern:
   - a small, pure, importable function that does the actual query/
     computation and returns a DataFrame (e.g. `compute_frequencies()`,
     `run_statistical_tests()`, `get_baseline_cohort()`)
-  - a `main()` that calls those functions, prints a human-readable
+  - a `main()` that calls those functions, prints a 
     summary, and saves results to `analysis/output/`
   - an `if __name__ == "__main__":` guard so each script can be run
     standalone (`python analysis/frequencies.py`) **or** imported
@@ -121,25 +120,24 @@ analyses**, a few things would change:
 
   This split matters because the **dashboard imports these same
   functions directly** rather than re-implementing the logic or
-  shelling out to the scripts — so the numbers shown in the dashboard
+  shelling out to the scripts. Thus, the numbers shown in the dashboard
   and the numbers in the CSV/plot outputs can never drift out of sync
-  with each other; there is exactly one implementation of each
-  calculation.
-- **`dashboard/app.py`** is a thin presentation layer on top of
-  `analysis/` — it contains no analytical logic of its own, only
-  Streamlit UI code (tables, charts, filters) wired to the functions
-  described above.
+  with each other.
+- **`dashboard/app.py`** doesn't contain any analytical code, but rather
+  is used to produce an interactive visual of the analysis.
 - **Statistical choices (Part 3)**: an independent two-sample t-test
   (Welch's, unequal variance) is used to compare responders vs.
-  non-responders per population — with exactly two groups this is
-  equivalent to one-way ANOVA, so the simpler/more familiar test is used
-  directly. Bonferroni correction is applied across the 5 simultaneous
-  per-population tests to control the family-wise false positive rate.
-  Effect size (Cohen's d) and the raw mean difference are reported
-  alongside the p-value, since with ~1,000 samples per group even a
-  small, practically negligible difference can be statistically
-  significant — reporting effect size avoids over-interpreting a small
-  p-value as a large biological effect.
+  non-responders per population, as we are looking for a difference in proportions across two response groups.
+- I applied a Bonferroni correction to account for five statistical tests being conducted back to back
+- I also reported effect size (Cohen's d) and the raw mean difference
+  with the p-value as a sanity check. It seemed, in the boxplots produced, that a major difference
+  was not present among the response groups for the cd4_t cells, despite a significant p-value.
+  I wanted to ensure that the significance was not a false positive, so I found these two values
+  helpful in identifying that significance as true. I produced a mean with error bars plot as well to
+  help look more closely at the differences across the response groups for each cell type. This
+  was more helpful for confirming the significance, as there was no overlap in the error bars for the cd4_t
+  cells while overlap was visible for all other cell types for the two response groups. Reporting
+  effect size helped understand whether the significance was substantive or not.
 
 ## Reproducing the outputs
 
