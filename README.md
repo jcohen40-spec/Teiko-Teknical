@@ -23,9 +23,9 @@ Running this line in the Teiko Teknical workspace should also start the dashboar
 python -m streamlit run dashboard/app.py
 ```
 
-
-
 **Dashboard link:** https://psychic-broccoli-jjxjv6r9464vc5gv4-8501.app.github.dev/
+
+Note - the above link is only functional if the dashboard is active.
 
 ## Project layout
 
