@@ -17,7 +17,7 @@ GitHub Codespaces, a popup/notification will offer to forward that port
 and open it in your browser automatically; if not, open the **Ports**
 tab and click the forwarded `8501` link.
 
-**Dashboard link:** _(add your deployed/forwarded URL here once running)_
+**Dashboard link:** https://github.com/jcohen40-spec/Teiko-Teknical
 
 ## Project layout
 
