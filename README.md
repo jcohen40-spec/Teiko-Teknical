@@ -136,16 +136,15 @@ analyses**, a few things would change:
 - **Statistical choices (Part 3)**: an independent two-sample t-test
   (Welch's, unequal variance) is used to compare responders vs.
   non-responders per population, as we are looking for a difference in proportions across two response groups.
-- I applied a Bonferroni correction to account for five statistical tests being conducted back to back
-- I also reported effect size (Cohen's d) and the raw mean difference
-  with the p-value as a sanity check. It seemed, in the boxplots produced, that a major difference
-  was not present among the response groups for the cd4_t cells, despite a significant p-value.
-  I wanted to ensure that the significance was not a false positive, so I found these two values
-  helpful in identifying that significance as true. I produced a mean with error bars plot as well to
-  help look more closely at the differences across the response groups for each cell type. This
-  was more helpful for confirming the significance, as there was no overlap in the error bars for the cd4_t
-  cells while overlap was visible for all other cell types for the two response groups. Reporting
-  effect size helped understand whether the significance was substantive or not.
+  - I applied a Bonferroni correction to account for five statistical tests being conducted back to back
+  - I also reported effect size (Cohen's d) and the raw mean difference with the p-value as a sanity check. It seemed, in the boxplots produced, that a major difference
+    was not present among the response groups for the cd4_t cells, despite a significant p-value.
+    I wanted to ensure that the significance was not a false positive, so I found these two values
+    helpful in identifying that significance as true.
+  - I produced a mean with error bars plot as well to help look more closely at the differences across the response groups for each cell type. This
+    was more helpful for confirming the significance, as there was no overlap in the error bars for the cd4_t
+    cells while overlap was visible for all other cell types for the two response groups.
+  - Reporting effect size helped understand whether the significance was substantive or not.
 
 ## Reproducing the outputs
 
